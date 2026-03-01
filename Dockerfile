@@ -13,6 +13,9 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
+# Create public folder if it doesn't exist (for standalone output)
+RUN mkdir -p public
+
 # Build the application
 RUN npm run build
 
@@ -29,8 +32,7 @@ RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
 # Copy necessary files from builder
-# Copy public folder only if it exists
-COPY --from=builder /app/public ./public 2>/dev/null || true
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
