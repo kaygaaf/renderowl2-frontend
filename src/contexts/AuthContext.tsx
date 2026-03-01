@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   // Set up dummy token getter
   useEffect(() => {
-    setTokenGetter(() => Promise.resolve("demo-token"))
+    setTokenGetter(() => "demo-token")
   }, [])
 
   const refreshProjects = async () => {
