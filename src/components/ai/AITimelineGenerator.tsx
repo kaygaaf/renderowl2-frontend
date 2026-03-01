@@ -155,12 +155,17 @@ export function AITimelineGenerator({
 
         // Audio clip with voice
         if (audioUrls && audioUrls[scene.number]) {
+          const audioData = audioUrls[scene.number]
+          // audioData is already a base64 string from VoiceSelector
+          const audioUrl = audioData.startsWith('data:') 
+            ? audioData 
+            : `data:audio/mp3;base64,${audioData}`
           const audioClip = await clipApi.create(timelineId, {
             trackId: audioTrack.id,
             startTime: currentTime,
             endTime: currentTime + sceneDuration,
             assetType: "audio",
-            assetUrl: `data:audio/mp3;base64,${audioUrls[scene.number]}`
+            assetUrl: audioUrl
           })
           clips.push(audioClip)
         }
@@ -187,28 +192,21 @@ export function AITimelineGenerator({
           name: videoTrack.name,
           type: "video",
           order: 0,
-          clips: clips.filter(c => 
-            c.trackId === videoTrack.id || 
-            clips.indexOf(c) < scenes.length
-          )
+          clips: clips.filter(c => c.trackId === videoTrack.id)
         },
         {
           id: audioTrack.id,
           name: audioTrack.name,
           type: "audio",
           order: 1,
-          clips: clips.filter(c => 
-            c.assetType === "audio"
-          )
+          clips: clips.filter(c => c.trackId === audioTrack.id)
         },
         {
           id: textTrack.id,
           name: textTrack.name,
           type: "text",
           order: 2,
-          clips: clips.filter(c => 
-            c.assetType === "text"
-          )
+          clips: clips.filter(c => c.trackId === textTrack.id)
         }
       ]
 

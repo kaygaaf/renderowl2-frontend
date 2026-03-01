@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { VideoPlayer } from "@/components/editor/VideoPlayer"
 import { AITimelineGenerator } from "@/components/ai/AITimelineGenerator"
+import { AIPanel } from "@/components/ai/AIPanel"
 import { PublishModal } from "@/components/social/PublishModal"
 import { timelineApi, trackApi, clipApi } from "@/lib/api"
 import { useAuth } from "@/contexts/AuthContext"
@@ -247,6 +248,19 @@ function EditorContent() {
     toast.success("AI-generated content added to timeline!")
   }, [])
 
+  const handleAIAppliedToTimeline = useCallback((aiTracks: TimelineTrack[]) => {
+    // Merge AI tracks with existing tracks or replace them
+    setTracks(prevTracks => {
+      const newTracks = [...prevTracks, ...aiTracks]
+      return newTracks
+    })
+    setTimeline(prev => prev ? {
+      ...prev,
+      tracks: [...(prev.tracks || []), ...aiTracks]
+    } : null)
+    toast.success("AI content added to timeline!")
+  }, [])
+
   const handleAddTrack = async (type: "video" | "audio" | "text") => {
     const currentId = projectId || timeline?.id
     if (!currentId || currentId === "new") {
@@ -335,6 +349,12 @@ function EditorContent() {
       <Navbar />
       
       <main className="flex-1 pt-16">
+        {/* AI Panel - Floating */}
+        <AIPanel 
+          projectId={currentProjectId !== "new" ? currentProjectId : undefined}
+          onApplyToTimeline={handleAIAppliedToTimeline}
+        />
+        
         <div className="h-[calc(100vh-4rem)] flex">
           {/* Left Sidebar - Assets & AI */}
           <div className="w-72 border-r bg-muted/50 flex flex-col">
