@@ -17,10 +17,11 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-# Copy standalone build or fallback to normal build
-COPY --from=builder /app/.next/standalone ./ 2>/dev/null || (mkdir -p .next && cp -r /app/.next/* .next/ 2>/dev/null; cp /app/package.json .; cp -r /app/node_modules .)
-COPY --from=builder /app/.next/static ./.next/static 2>/dev/null || true
-COPY --from=builder /app/public ./public 2>/dev/null || true
+# Copy the entire app (works for both standalone and non-standalone)
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/public ./public
 
 EXPOSE 3000
-CMD ["node", "server.js"]
+CMD ["npm", "start"]
