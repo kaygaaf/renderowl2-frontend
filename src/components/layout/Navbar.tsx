@@ -15,15 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-
-// Try to import Clerk, fallback to null if not available
-let useAuth: any = null
-try {
-  const clerk = require("@clerk/nextjs")
-  useAuth = clerk.useAuth
-} catch (e) {
-  // Clerk not available
-}
+import { useAuth } from "@/contexts/AuthContext"
 
 const navLinks = [
   { href: "/features", label: "Features" },
@@ -35,21 +27,11 @@ export function Navbar() {
   const pathname = usePathname()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   
-  // Use Clerk auth if available, otherwise use fallback
-  const auth = useAuth ? useAuth() : { isSignedIn: false, user: null, signOut: async () => {} }
-  const { isSignedIn, user, signOut } = auth
-  
-  // Extract user data if available
-  const userData = user ? {
-    name: user.fullName || user.firstName || "User",
-    email: user.primaryEmailAddress?.emailAddress || "",
-    avatar: user.imageUrl,
-  } : null
+  // Use our AuthContext instead of Clerk
+  const { isSignedIn, userData, signOut } = useAuth()
 
   const handleSignOut = async () => {
-    if (signOut) {
-      await signOut()
-    }
+    await signOut()
   }
 
   return (
