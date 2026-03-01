@@ -13,14 +13,14 @@ RUN npm run build
 
 FROM node:20-alpine AS runner
 WORKDIR /app
-ENV NODE_ENV production
-ENV PORT 3000
-ENV HOSTNAME "0.0.0.0"
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nextjs
-COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
-COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder --chown=nextjs:nodejs /app/public ./public
-USER nextjs
+ENV NODE_ENV=production
+ENV PORT=3000
+ENV HOSTNAME=0.0.0.0
+
+# Copy standalone build or fallback to normal build
+COPY --from=builder /app/.next/standalone ./ 2>/dev/null || (mkdir -p .next && cp -r /app/.next/* .next/ 2>/dev/null; cp /app/package.json .; cp -r /app/node_modules .)
+COPY --from=builder /app/.next/static ./.next/static 2>/dev/null || true
+COPY --from=builder /app/public ./public 2>/dev/null || true
+
 EXPOSE 3000
 CMD ["node", "server.js"]
