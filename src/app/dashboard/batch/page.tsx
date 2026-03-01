@@ -1,5 +1,4 @@
-import { auth } from "@clerk/nextjs/server"
-import { redirect } from "next/navigation"
+import { requireAuth } from "@/lib/auth"
 import { Navbar } from "@/components/layout/Navbar"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs"
@@ -8,11 +7,7 @@ import { BatchContent } from "./BatchContent"
 export const dynamic = "force-dynamic"
 
 export default async function BatchPage() {
-  const { userId } = await auth()
-  
-  if (!userId) {
-    redirect("/auth?mode=login")
-  }
+  await requireAuth()
 
   return (
     <div className="min-h-screen flex flex-col">

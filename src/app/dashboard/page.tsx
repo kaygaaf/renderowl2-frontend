@@ -1,5 +1,4 @@
-import { auth } from "@clerk/nextjs/server"
-import { redirect } from "next/navigation"
+import { requireAuth } from "@/lib/auth"
 import { Navbar } from "@/components/layout/Navbar"
 import { Sidebar } from "@/components/layout/Sidebar"
 import { Breadcrumbs } from "@/components/layout/Breadcrumbs"
@@ -8,11 +7,7 @@ import { DashboardContent } from "@/components/dashboard/DashboardContent"
 export const dynamic = "force-dynamic"
 
 export default async function DashboardPage() {
-  const { userId } = await auth()
-  
-  if (!userId) {
-    redirect("/auth?mode=login")
-  }
+  const { userId } = await requireAuth()
 
   return (
     <div className="min-h-screen flex flex-col">
